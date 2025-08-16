@@ -1,64 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Equipment Search</title>
-<style>
-  body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
-  h1 { text-align: center; }
-  input { width: 100%; padding: 10px; margin-bottom: 15px; font-size: 16px; }
-  table { width: 100%; border-collapse: collapse; background: white; }
-  th, td { padding: 8px; border: 1px solid #ccc; }
-  th { background-color: #007BFF; color: white; }
-  tr:hover { background-color: #f1f1f1; cursor: pointer; }
-</style>
+  <meta charset="UTF-8">
+  <title>Equipment Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    input {
+      padding: 8px;
+      width: 300px;
+      margin-bottom: 10px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    th {
+      background-color: #009688;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-
-<h1>Search Equipment</h1>
-<input type="text" id="searchBox" placeholder="Type to search equipment...">
-
-<table id="equipmentTable">
-  <thead>
-    <tr>
-      <th>Equipment Number</th>
-      <th>Equipment Name</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<script>
-async function loadCSV() {
-  const response = await fetch('equipment.csv');
-  const data = await response.text();
+  <h2>Equipment List Search</h2>
+  <input type="text" id="searchInput" placeholder="Search equipment number or name...">
   
-  const rows = data.trim().split('\n').slice(1); // skip header
-  const tableBody = document.querySelector('#equipmentTable tbody');
-  tableBody.innerHTML = '';
+  <table id="equipmentTable">
+    <thead>
+      <tr>
+        <th>Equipment Number</th>
+        <th>Equipment Name</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-  rows.forEach(row => {
-    const cols = row.split(',');
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${cols[0]}</td><td>${cols[1]}</td>`;
-    tr.addEventListener('click', () => {
-      navigator.clipboard.writeText(cols[0]);
-      alert(`Copied: ${cols[0]}`);
+  <script>
+    let allRows = []; // Full dataset
+    let allRowsLower = []; // Lowercase version for search
+    let searchTimeout;
+
+    // Load CSV from GitHub
+    function loadCSV() {
+      fetch('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/equipment.csv')
+        .then(res => res.text())
+        .then(text => {
+          allRows = text.trim().split('\n').map(r => r.split(','));
+          allRowsLower = allRows.map(r => r.map(c => c.toLowerCase()));
+          renderTable(allRows); // Show full table on load
+        });
+    }
+
+    // Render table rows
+    function renderTable(rows) {
+      const tbody = document.querySelector('#equipmentTable tbody');
+      tbody.innerHTML = '';
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Filter table
+    function filterTable(searchValue) {
+      if (!searchValue) {
+        renderTable(allRows);
+        return;
+      }
+      searchValue = searchValue.toLowerCase();
+      const filtered = allRowsLower
+        .map((row, idx) => row.some(cell => cell.includes(searchValue)) ? allRows[idx] : null)
+        .filter(Boolean);
+      renderTable(filtered);
+    }
+
+    // Debounced search
+    document.getElementById('searchInput').addEventListener('input', function () {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        filterTable(this.value);
+      }, 300);
     });
-    tableBody.appendChild(tr);
-  });
-}
 
-document.getElementById('searchBox').addEventListener('input', function() {
-  const filter = this.value.toLowerCase();
-  const rows = document.querySelectorAll('#equipmentTable tbody tr');
-  rows.forEach(row => {
-    row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
-  });
-});
-
-loadCSV();
-</script>
-
+    loadCSV();
+  </script>
 </body>
 </html>
