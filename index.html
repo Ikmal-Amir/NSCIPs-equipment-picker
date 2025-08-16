@@ -1,111 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>Equipment Search</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-  }
-  #search {
-    width: 100%;
-    padding: 8px;
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 14px;
-  }
-  th, td {
-    border: 1px solid #ddd;
-    padding: 6px;
-    text-align: left;
-  }
-  tr:hover {
-    background-color: #f1f1f1;
-  }
-  .clickable {
-    color: #0066cc;
-    cursor: pointer;
-    text-decoration: underline;
-  }
+    body {
+        font-family: Calibri, sans-serif;
+        padding: 20px;
+    }
+    input {
+        padding: 8px;
+        width: 100%;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        font-size: 14px;
+    }
+    th {
+        background-color: #009688;
+        color: white;
+    }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    .clickable {
+        cursor: pointer;
+        color: #0D47A1;
+        text-decoration: underline;
+    }
+    .copied {
+        color: green;
+        font-size: 12px;
+        margin-left: 8px;
+        display: none;
+    }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 
 <h2>Equipment Search</h2>
-<input type="text" id="search" placeholder="Search equipment number or description...">
-<table id="equipmentTable">
-  <thead>
-    <tr>
-      <th>Equipment No.</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
+<input type="text" id="searchBox" placeholder="Type to search equipment...">
+<table>
+    <thead>
+        <tr>
+            <th>Equipment No.</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
 </table>
 
 <script>
-const csvUrl = "https://github.com/Ikmal-Amir/NSCIPs-equipment-picker/blob/6f1896e7beebd55c2a0b595a4de1dfd76307eac6/equipment.csv"; // Replace with your GitHub CSV raw link
+// REPLACE with your CSV file permalink from GitHub
+const csvUrl = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/equipment.csv";
 
-let equipmentData = [];
+async function loadCSV() {
+    const res = await fetch(csvUrl);
+    const text = await res.text();
+    return parseCSV(text);
+}
 
-function loadCSV() {
-  Papa.parse(csvUrl, {
-    download: true,
-    header: true, // Change to true if CSV has column names
-    skipEmptyLines: true,
-    complete: function(results) {
-      equipmentData = results.data;
-      renderTable(equipmentData);
+// CSV parser that respects quotes
+function parseCSV(str) {
+    const rows = [];
+    let row = [], col = '';
+    let inQuotes = false;
+
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i], next = str[i+1];
+        if (char === '"' && inQuotes && next === '"') { // escaped quote
+            col += '"';
+            i++;
+        } else if (char === '"') {
+            inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+            row.push(col);
+            col = '';
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+            if (col || row.length) row.push(col);
+            if (row.length) rows.push(row);
+            row = []; col = '';
+        } else {
+            col += char;
+        }
     }
-  });
+    if (col || row.length) {
+        row.push(col);
+        rows.push(row);
+    }
+    return rows;
 }
 
-function renderTable(data) {
-  const tbody = document.querySelector("#equipmentTable tbody");
-  tbody.innerHTML = "";
-  data.forEach(row => {
-    const tr = document.createElement("tr");
-
-    const tdNo = document.createElement("td");
-    tdNo.textContent = row["Equipment No."];
-    tdNo.classList.add("clickable");
-    tdNo.onclick = () => copyToClipboard(row["Equipment No."]);
-
-    const tdDesc = document.createElement("td");
-    tdDesc.textContent = row["Description"];
-
-    tr.appendChild(tdNo);
-    tr.appendChild(tdDesc);
-    tbody.appendChild(tr);
-  });
+function displayTable(data) {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = '';
+    data.forEach(item => {
+        const tr = document.createElement("tr");
+        const tdNum = document.createElement("td");
+        tdNum.innerHTML = `<span class="clickable">${item[0]}</span><span class="copied">Copied!</span>`;
+        tdNum.querySelector(".clickable").addEventListener("click", () => {
+            navigator.clipboard.writeText(item[0]);
+            const copiedSpan = tdNum.querySelector(".copied");
+            copiedSpan.style.display = "inline";
+            setTimeout(() => copiedSpan.style.display = "none", 1000);
+        });
+        const tdDesc = document.createElement("td");
+        tdDesc.textContent = item[1];
+        tr.appendChild(tdNum);
+        tr.appendChild(tdDesc);
+        tbody.appendChild(tr);
+    });
 }
 
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    alert(`Copied: ${text}`);
-  });
+function setupSearch(fullData) {
+    const searchBox = document.getElementById("searchBox");
+    searchBox.addEventListener("input", () => {
+        const term = searchBox.value.toLowerCase();
+        const filtered = fullData.filter(row =>
+            row[0].toLowerCase().includes(term) ||
+            row[1].toLowerCase().includes(term)
+        );
+        displayTable(filtered);
+    });
 }
 
-document.getElementById("search").addEventListener("input", function() {
-  const searchTerm = this.value.toLowerCase();
-  const filtered = equipmentData.filter(row => 
-    row[0].toLowerCase().includes(searchTerm) || 
-    row[1].toLowerCase().includes(searchTerm)
-  );
-  renderTable(filtered);
-});
-
-loadCSV();
+(async function(){
+    const data = await loadCSV();
+    data.shift(); // remove header
+    displayTable(data);
+    setupSearch(data);
+})();
 </script>
 
 </body>
 </html>
-
-
-
