@@ -48,7 +48,7 @@
 
     // Load CSV from GitHub
     function loadCSV() {
-      fetch('https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/equipment.csv')
+      fetch('https://raw.githubusercontent.com/Ikmal-Amir/NSCIPs-equipment-picker/main/equipment.csv')
         .then(res => res.text())
         .then(text => {
           allRows = text.trim().split('\n').map(r => r.split(','));
@@ -97,3 +97,4 @@
   </script>
 </body>
 </html>
+
