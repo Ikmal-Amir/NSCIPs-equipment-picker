@@ -57,7 +57,7 @@ let equipmentData = [];
 function loadCSV() {
   Papa.parse(csvUrl, {
     download: true,
-    header: false, // false if CSV has no column headers
+    header: true, // Change to true if CSV has column names
     skipEmptyLines: true,
     complete: function(results) {
       equipmentData = results.data;
@@ -73,12 +73,12 @@ function renderTable(data) {
     const tr = document.createElement("tr");
 
     const tdNo = document.createElement("td");
-    tdNo.textContent = row[0];
+    tdNo.textContent = row["Equipment No."];
     tdNo.classList.add("clickable");
-    tdNo.onclick = () => copyToClipboard(row[0]);
+    tdNo.onclick = () => copyToClipboard(row["Equipment No."]);
 
     const tdDesc = document.createElement("td");
-    tdDesc.textContent = row[1];
+    tdDesc.textContent = row["Description"];
 
     tr.appendChild(tdNo);
     tr.appendChild(tdDesc);
@@ -106,3 +106,4 @@ loadCSV();
 
 </body>
 </html>
+
