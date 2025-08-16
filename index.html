@@ -1,101 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Equipment Search</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    input {
-      padding: 8px;
-      width: 300px;
-      margin-bottom: 10px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    th {
-      background-color: #009688;
-      color: white;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Equipment Search</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  #search {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: left;
+  }
+  tr:hover {
+    background-color: #f1f1f1;
+  }
+  .clickable {
+    color: #0066cc;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
-  <h2>Equipment List Search</h2>
-  <input type="text" id="searchInput" placeholder="Search equipment number or name...">
-  
-  <table id="equipmentTable">
-    <thead>
-      <tr>
-        <th>Equipment Number</th>
-        <th>Equipment Name</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
 
-  <script>
-    let allRows = []; // Full dataset
-    let allRowsLower = []; // Lowercase version for search
-    let searchTimeout;
+<h2>Equipment Search</h2>
+<input type="text" id="search" placeholder="Search equipment number or description...">
+<table id="equipmentTable">
+  <thead>
+    <tr>
+      <th>Equipment No.</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-    // Load CSV from GitHub
-    function loadCSV() {
-      fetch('https://github.com/Ikmal-Amir/NSCIPs-equipment-picker/blob/86a45ff85e1798a00a504a8c1b824418db191928/equipment.csv')
-        .then(res => res.text())
-        .then(text => {
-          allRows = text.trim().split('\n').map(r => r.split(','));
-          allRowsLower = allRows.map(r => r.map(c => c.toLowerCase()));
-          renderTable(allRows); // Show full table on load
-        });
+<script>
+const csvUrl = "https://github.com/Ikmal-Amir/NSCIPs-equipment-picker/blob/f18adfda435b906047f8362296dda634912578a8/equipment.csv"; // Replace with your GitHub CSV raw link
+
+let equipmentData = [];
+
+function loadCSV() {
+  Papa.parse(csvUrl, {
+    download: true,
+    header: false, // false if CSV has no column headers
+    skipEmptyLines: true,
+    complete: function(results) {
+      equipmentData = results.data;
+      renderTable(equipmentData);
     }
+  });
+}
 
-    // Render table rows
-    function renderTable(rows) {
-      const tbody = document.querySelector('#equipmentTable tbody');
-      tbody.innerHTML = '';
-      rows.forEach(row => {
-        const tr = document.createElement('tr');
-        row.forEach(cell => {
-          const td = document.createElement('td');
-          td.textContent = cell;
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-    }
+function renderTable(data) {
+  const tbody = document.querySelector("#equipmentTable tbody");
+  tbody.innerHTML = "";
+  data.forEach(row => {
+    const tr = document.createElement("tr");
 
-    // Filter table
-    function filterTable(searchValue) {
-      if (!searchValue) {
-        renderTable(allRows);
-        return;
-      }
-      searchValue = searchValue.toLowerCase();
-      const filtered = allRowsLower
-        .map((row, idx) => row.some(cell => cell.includes(searchValue)) ? allRows[idx] : null)
-        .filter(Boolean);
-      renderTable(filtered);
-    }
+    const tdNo = document.createElement("td");
+    tdNo.textContent = row[0];
+    tdNo.classList.add("clickable");
+    tdNo.onclick = () => copyToClipboard(row[0]);
 
-    // Debounced search
-    document.getElementById('searchInput').addEventListener('input', function () {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => {
-        filterTable(this.value);
-      }, 300);
-    });
+    const tdDesc = document.createElement("td");
+    tdDesc.textContent = row[1];
 
-    loadCSV();
-  </script>
+    tr.appendChild(tdNo);
+    tr.appendChild(tdDesc);
+    tbody.appendChild(tr);
+  });
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert(`Copied: ${text}`);
+  });
+}
+
+document.getElementById("search").addEventListener("input", function() {
+  const searchTerm = this.value.toLowerCase();
+  const filtered = equipmentData.filter(row => 
+    row[0].toLowerCase().includes(searchTerm) || 
+    row[1].toLowerCase().includes(searchTerm)
+  );
+  renderTable(filtered);
+});
+
+loadCSV();
+</script>
+
 </body>
 </html>
-
-
