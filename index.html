@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Equipment Search</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+  h1 { text-align: center; }
+  input { width: 100%; padding: 10px; margin-bottom: 15px; font-size: 16px; }
+  table { width: 100%; border-collapse: collapse; background: white; }
+  th, td { padding: 8px; border: 1px solid #ccc; }
+  th { background-color: #007BFF; color: white; }
+  tr:hover { background-color: #f1f1f1; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h1>Search Equipment</h1>
+<input type="text" id="searchBox" placeholder="Type to search equipment...">
+
+<table id="equipmentTable">
+  <thead>
+    <tr>
+      <th>Equipment Number</th>
+      <th>Equipment Name</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+async function loadCSV() {
+  const response = await fetch('equipment.csv');
+  const data = await response.text();
+  
+  const rows = data.trim().split('\n').slice(1); // skip header
+  const tableBody = document.querySelector('#equipmentTable tbody');
+  tableBody.innerHTML = '';
+
+  rows.forEach(row => {
+    const cols = row.split(',');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${cols[0]}</td><td>${cols[1]}</td>`;
+    tr.addEventListener('click', () => {
+      navigator.clipboard.writeText(cols[0]);
+      alert(`Copied: ${cols[0]}`);
+    });
+    tableBody.appendChild(tr);
+  });
+}
+
+document.getElementById('searchBox').addEventListener('input', function() {
+  const filter = this.value.toLowerCase();
+  const rows = document.querySelectorAll('#equipmentTable tbody tr');
+  rows.forEach(row => {
+    row.style.display = row.innerText.toLowerCase().includes(filter) ? '' : 'none';
+  });
+});
+
+loadCSV();
+</script>
+
+</body>
+</html>
