@@ -6,230 +6,169 @@
   <title>Equipment Picker</title>
   <style>
     body {
-      font-family: "Segoe UI", Roboto, Arial, sans-serif;
-      background: #f9fbfd; /* light background */
+      font-family: "Segoe UI", Tahoma, sans-serif;
       margin: 0;
-      padding: 20px;
-      color: #2b2b2b;
+      padding: 0;
+      background: #f5f9ff;
+      color: #333;
     }
 
-    h1 {
+    header {
+      background: linear-gradient(90deg, #004aad, #f7c600);
+      color: white;
       text-align: center;
-      color: #004aad; /* strong blue */
-      margin-bottom: 20px;
-      font-size: 22px;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
     }
 
-    .search-container {
-      display: flex;
-      justify-content: center;
-      position: relative;
-      max-width: 500px;
-      margin: 0 auto 20px auto;
-      width: 100%;
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 0 15px;
     }
 
-    input[type="text"] {
+    #searchBox {
       width: 100%;
-      padding: 10px 40px 10px 14px; /* extra right space for clear button */
+      padding: 12px;
+      font-size: 15px;
       border: 2px solid #004aad;
       border-radius: 8px;
-      font-size: 14px;
+      margin-bottom: 16px;
       outline: none;
-      transition: border 0.2s ease;
-    }
-
-    input[type="text"]:focus {
-      border-color: #f7c600; /* yellow */
-      box-shadow: 0 0 6px rgba(0, 74, 173, 0.2);
-    }
-
-    /* Clear button (default desktop style: grey subtle) */
-    .clear-btn {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #ccc;
-      border: none;
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
-      font-size: 14px;
-      font-weight: bold;
-      color: white;
-      cursor: pointer;
-      display: none; /* hidden by default */
-      transition: background 0.2s ease;
-    }
-
-    .clear-btn:hover {
-      background: #999;
-    }
-
-    /* On mobile: make it yellow + blue */
-    @media (max-width: 600px) {
-      .clear-btn {
-        background: #f7c600;
-        color: #004aad;
-      }
+      box-sizing: border-box;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       background: white;
-      border-radius: 10px;
+      border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 14px;
+      border-bottom: 1px solid #e0e0e0;
     }
 
     th {
-      background: linear-gradient(90deg, #004aad, #0066cc);
+      background: #004aad;
       color: white;
-      text-align: left;
-      padding: 12px 14px;
-      font-size: 14px;
+      font-size: 15px;
     }
 
-    td {
-      padding: 10px 14px;
-      font-size: 14px;
-      border-bottom: 1px solid #eee;
-      vertical-align: top;
+    tr:hover {
+      background: #f1f7ff;
+      cursor: pointer;
     }
 
     td:nth-child(1) {
       font-weight: bold;
       color: #004aad;
-      white-space: nowrap;
       width: 20%;
+      white-space: nowrap;
     }
 
     td:nth-child(2) {
-      white-space: normal;
-      word-break: break-word;
+      white-space: normal;          /* allow wrapping */
+      word-break: break-word;       /* break long words */
+      overflow-wrap: break-word;    /* ensure wrap works */
       max-width: 600px;
     }
 
-    tr:hover {
-      background: #f0f7ff;
-      cursor: pointer;
-    }
-
     .copied-toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
+      position: absolute;
       background: #004aad;
       color: white;
-      padding: 8px 14px;
+      padding: 6px 12px;
       border-radius: 6px;
       font-size: 13px;
+      pointer-events: none;
       display: none;
-      animation: fadeInOut 2s ease forwards;
-    }
-
-    @keyframes fadeInOut {
-      0% { opacity: 0; transform: translateY(10px); }
-      10% { opacity: 1; transform: translateY(0); }
-      90% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(10px); }
+      white-space: nowrap;
+      z-index: 999;
     }
 
     @media (max-width: 600px) {
       th, td {
-        font-size: 12px;
-        padding: 8px;
+        font-size: 13px;
+        padding: 10px;
       }
-      td:nth-child(2) {
-        max-width: 200px;
+      #searchBox {
+        font-size: 14px;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Equipment Picker</h1>
-
-  <div class="search-container">
-    <input type="text" id="searchBox" placeholder="Search equipment number or name...">
-    <button id="clearBtn" class="clear-btn">×</button>
+  <header>NSCI Equipment Picker</header>
+  <div class="container">
+    <input type="text" id="searchBox" placeholder="🔍 Search equipment by number or name...">
+    <table id="equipmentTable">
+      <thead>
+        <tr>
+          <th>Equipment Number</th>
+          <th>Equipment Name</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
-
-  <table id="equipmentTable">
-    <thead>
-      <tr>
-        <th>Equipment Number</th>
-        <th>Equipment Name</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
 
   <div id="toast" class="copied-toast">Copied!</div>
 
   <script>
+    const csvUrl = "https://raw.githubusercontent.com/Ikmal-Amir/NSCIPs-equipment-picker/refs/heads/main/equipment.csv"; // replace with raw GitHub CSV link
+
     async function loadCSV() {
-      const response = await fetch("https://raw.githubusercontent.com/Ikmal-Amir/NSCIPs-equipment-picker/refs/heads/main/equipment.csv");
-      const data = await response.text();
-      const rows = data.trim().split("\n").map(line => {
-        const match = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-        return match ? match.map(cell => cell.replace(/^"|"$/g, "")) : [];
+      const response = await fetch(csvUrl);
+      const text = await response.text();
+      return text.trim().split("\n").map(line => {
+        const match = line.match(/^"?(.*?)"?,"?(.*?)"?$/);
+        return match ? [match[1], match[2]] : line.split(",");
       });
-      return rows;
     }
 
-    function showToast() {
-      const toast = document.getElementById("toast");
-      toast.style.display = "block";
-      setTimeout(() => { toast.style.display = "none"; }, 2000);
-    }
-
-    function filterTable(rows, query) {
-      query = query.toLowerCase();
-      return rows.filter(row => row[0].toLowerCase().includes(query) || row[1].toLowerCase().includes(query));
-    }
-
-    function renderTable(rows) {
+    function renderTable(data) {
       const tbody = document.querySelector("#equipmentTable tbody");
       tbody.innerHTML = "";
-      rows.forEach(row => {
-        if (row.length >= 2) {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td>`;
-          tr.addEventListener("click", () => {
-            navigator.clipboard.writeText(row[0]);
-            showToast();
-          });
-          tbody.appendChild(tr);
-        }
+      data.forEach(row => {
+        if (!row[0] || !row[1]) return;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td>`;
+        tr.addEventListener("click", (e) => {
+          navigator.clipboard.writeText(row[0]);
+          showToast(e.pageX, e.pageY);
+        });
+        tbody.appendChild(tr);
       });
     }
 
-    async function init() {
-      const rows = await loadCSV();
-      const dataRows = rows.slice(1); // skip header
-      renderTable(dataRows);
-
-      const searchBox = document.getElementById("searchBox");
-      const clearBtn = document.getElementById("clearBtn");
-
-      searchBox.addEventListener("input", function() {
-        const query = this.value;
-        clearBtn.style.display = query.length > 0 ? "block" : "none";
-        const filtered = filterTable(dataRows, query);
-        renderTable(filtered);
-      });
-
-      clearBtn.addEventListener("click", function() {
-        searchBox.value = "";
-        this.style.display = "none";
-        renderTable(dataRows);
-        searchBox.focus();
-      });
+    function showToast(x, y) {
+      const toast = document.getElementById("toast");
+      toast.style.left = x + "px";
+      toast.style.top = (y - 30) + "px";
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 1500);
     }
 
-    init();
+    document.getElementById("searchBox").addEventListener("input", async (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = window.allData.filter(row =>
+        row[0].toLowerCase().includes(query) || row[1].toLowerCase().includes(query)
+      );
+      renderTable(filtered);
+    });
+
+    (async () => {
+      window.allData = await loadCSV();
+      renderTable(window.allData);
+    })();
   </script>
 </body>
 </html>
