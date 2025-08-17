@@ -107,11 +107,10 @@
       border-radius: 50%;
       background: #0056a3; /* company blue */
       color: #fbbc05;      /* company yellow */
-      font-size: 18px;     /* nice size for ✖ */
+      font-size: 18px;     
       font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center; /* ensures ✖ is centered */
+      line-height: 28px;   /* forces the ✖ to center vertically */
+      text-align: center;  /* centers horizontally */
       cursor: pointer;
       user-select: none;
       display: none; /* hidden until typing */
@@ -231,6 +230,7 @@
   </script>
 </body>
 </html>
+
 
 
 
