@@ -2,173 +2,167 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equipment Picker</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     body {
-      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8faff;
+      color: #333;
       margin: 0;
       padding: 0;
-      background: #f5f9ff;
-      color: #333;
     }
-
     header {
-      background: linear-gradient(90deg, #004aad, #f7c600);
+      background: linear-gradient(90deg, #0056a3, #fbbc05);
       color: white;
       text-align: center;
-      padding: 16px;
-      font-size: 20px;
+      padding: 1rem;
+      font-size: 1.5rem;
       font-weight: bold;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
-
     .container {
       max-width: 1000px;
       margin: 20px auto;
       padding: 0 15px;
     }
-
-    #searchBox {
+    .search-box {
       width: 100%;
       padding: 12px;
-      font-size: 15px;
-      border: 2px solid #004aad;
+      font-size: 16px;
+      border: 2px solid #0056a3;
       border-radius: 8px;
-      margin-bottom: 16px;
-      outline: none;
+      margin-bottom: 20px;
       box-sizing: border-box;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       background: white;
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
     th, td {
-      padding: 12px 14px;
       text-align: left;
+      padding: 10px 12px;
       font-size: 14px;
-      border-bottom: 1px solid #e0e0e0;
+      word-wrap: break-word;
+      max-width: 400px;
+      white-space: normal; /* Wrap long names */
     }
-
     th {
-      background: #004aad;
+      background-color: #0056a3;
       color: white;
-      font-size: 15px;
     }
-
+    tr:nth-child(even) {
+      background-color: #f4f9ff;
+    }
     tr:hover {
-      background: #f1f7ff;
+      background-color: #e3f2fd;
       cursor: pointer;
     }
-
-    td:nth-child(1) {
-      font-weight: bold;
-      color: #004aad;
-      width: 20%;
-      white-space: nowrap;
-    }
-
-    td:nth-child(2) {
-      white-space: normal;          /* allow wrapping */
-      word-break: break-word;       /* break long words */
-      overflow-wrap: break-word;    /* ensure wrap works */
-      max-width: 600px;
-    }
-
-    .copied-toast {
+    .copied {
       position: absolute;
-      background: #004aad;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 13px;
+      background: #fbbc05;
+      color: #000;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
       pointer-events: none;
-      display: none;
-      white-space: nowrap;
-      z-index: 999;
+      opacity: 0;
+      transform: translate(-50%, -150%);
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
-
     @media (max-width: 600px) {
       th, td {
-        font-size: 13px;
-        padding: 10px;
+        font-size: 12px;
+        padding: 8px;
       }
-      #searchBox {
+      .search-box {
         font-size: 14px;
       }
     }
   </style>
 </head>
 <body>
-  <header>NSCI Equipment Picker</header>
+  <header>Equipment Picker</header>
   <div class="container">
-    <input type="text" id="searchBox" placeholder="🔍 Search equipment by number or name...">
-    <table id="equipmentTable">
+    <input type="text" id="search" class="search-box" placeholder="Search equipment number or name...">
+    <table>
       <thead>
         <tr>
           <th>Equipment Number</th>
           <th>Equipment Name</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody id="table-body"></tbody>
     </table>
   </div>
 
-  <div id="toast" class="copied-toast">Copied!</div>
+  <div id="copied-popup" class="copied">Copied!</div>
 
   <script>
-    const csvUrl = "https://raw.githubusercontent.com/Ikmal-Amir/NSCIPs-equipment-picker/refs/heads/main/equipment.csv"; // replace with raw GitHub CSV link
+    let equipmentList = [];
+    const searchBox = document.getElementById("search");
+    const tableBody = document.getElementById("table-body");
+    const copiedPopup = document.getElementById("copied-popup");
 
-    async function loadCSV() {
-      const response = await fetch(csvUrl);
-      const text = await response.text();
-      return text.trim().split("\n").map(line => {
-        const match = line.match(/^"?(.*?)"?,"?(.*?)"?$/);
-        return match ? [match[1], match[2]] : line.split(",");
-      });
-    }
+    // Load CSV using PapaParse
+    Papa.parse("https://raw.githubusercontent.com/Ikmal-Amir/NSCIPs-equipment-picker/refs/heads/main/equipment.csv", {
+      download: true,
+      header: false,
+      skipEmptyLines: true,
+      complete: function(results) {
+        equipmentList = results.data;
+        renderTable(equipmentList);
+      }
+    });
 
     function renderTable(data) {
-      const tbody = document.querySelector("#equipmentTable tbody");
-      tbody.innerHTML = "";
+      tableBody.innerHTML = "";
       data.forEach(row => {
-        if (!row[0] || !row[1]) return;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${row[0]}</td><td>${row[1]}</td>`;
-        tr.addEventListener("click", (e) => {
-          navigator.clipboard.writeText(row[0]);
-          showToast(e.pageX, e.pageY);
-        });
-        tbody.appendChild(tr);
+        if (row.length >= 2) {
+          const tr = document.createElement("tr");
+          const tdNum = document.createElement("td");
+          const tdName = document.createElement("td");
+
+          tdNum.textContent = row[0];
+          tdName.textContent = row[1];
+
+          tr.appendChild(tdNum);
+          tr.appendChild(tdName);
+
+          tr.addEventListener("click", (e) => {
+            navigator.clipboard.writeText(row[0]).then(() => {
+              showCopied(e.pageX, e.pageY);
+            });
+          });
+
+          tableBody.appendChild(tr);
+        }
       });
     }
 
-    function showToast(x, y) {
-      const toast = document.getElementById("toast");
-      toast.style.left = x + "px";
-      toast.style.top = (y - 30) + "px";
-      toast.style.display = "block";
-      setTimeout(() => { toast.style.display = "none"; }, 1500);
+    function showCopied(x, y) {
+      copiedPopup.style.left = x + "px";
+      copiedPopup.style.top = y + "px";
+      copiedPopup.style.opacity = "1";
+      copiedPopup.style.transform = "translate(-50%, -150%)";
+      setTimeout(() => {
+        copiedPopup.style.opacity = "0";
+      }, 1000);
     }
 
-    document.getElementById("searchBox").addEventListener("input", async (e) => {
-      const query = e.target.value.toLowerCase();
-      const filtered = window.allData.filter(row =>
-        row[0].toLowerCase().includes(query) || row[1].toLowerCase().includes(query)
+    searchBox.addEventListener("input", function() {
+      const query = this.value.toLowerCase();
+      const filtered = equipmentList.filter(row =>
+        row[0].toLowerCase().includes(query) ||
+        (row[1] && row[1].toLowerCase().includes(query))
       );
       renderTable(filtered);
     });
-
-    (async () => {
-      window.allData = await loadCSV();
-      renderTable(window.allData);
-    })();
   </script>
 </body>
 </html>
