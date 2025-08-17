@@ -80,50 +80,48 @@
         font-size: 12px;
         padding: 8px;
       }
-      .search-box {
-        font-size: 14px;
-      }
     }
     .search-wrapper {
-        position: relative;
-        width: 100%;
-        margin-bottom: 20px;
-      }
-
-      .search-box {
-        width: 100%;
-        padding: 12px 40px 12px 12px; /* leave space for the X */
-        font-size: 16px;
-        border: 2px solid #0056a3;
-        border-radius: 8px;
-        box-sizing: border-box;
-      }
-
-      .clear-btn {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: #ccc;
-        color: white;
-        font-size: 16px;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        user-select: none;
-        display: none; /* hidden until typing */
-        transition: background 0.2s ease, color 0.2s ease;
-      }
-      
-      .clear-btn:hover {
-        background: #0056a3; /* company blue */
-        color: #fbbc05;     /* company yellow for the ❌ */
-      }
+      position: relative;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    
+    .search-box {
+      width: 100%;
+      padding: 12px 40px 12px 12px; /* leave space for the X */
+      font-size: 16px;
+      border: 2px solid #0056a3;
+      border-radius: 8px;
+      box-sizing: border-box;
+      margin-bottom: 0; /* remove extra margin pushing things down */
+    }
+    
+    .clear-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #0056a3; /* company blue */
+      color: #fff;
+      font-size: 16px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      display: none; /* hidden until typing */
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    
+    .clear-btn:hover {
+      background: #fbbc05; /* company yellow */
+      color: #fbbc05;    
+    }
   </style>
 </head>
 <body>
@@ -233,6 +231,7 @@
   </script>
 </body>
 </html>
+
 
 
 
