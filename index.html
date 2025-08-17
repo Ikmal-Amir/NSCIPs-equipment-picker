@@ -87,9 +87,10 @@
   </style>
 </head>
 <body>
-  <header>Equipment Picker</header>
+  <header>NSCIPs Equipment Picker</header>
   <div class="container">
     <input type="text" id="search" class="search-box" placeholder="Search equipment number or name...">
+    <button id="clearBtn">Clear</button>
     <table>
       <thead>
         <tr>
@@ -165,7 +166,15 @@
       );
       renderTable(filtered);
     });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      searchBox.value = "";
+      renderTable(equipmentList); // show full list again
+      searchBox.focus(); // keep cursor in search box
+    });
+
   </script>
 </body>
 </html>
+
 
