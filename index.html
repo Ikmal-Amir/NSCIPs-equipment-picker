@@ -83,14 +83,47 @@
       .search-box {
         font-size: 14px;
       }
+      .search-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 20px;
+      }
+
+      .search-box {
+        width: 100%;
+        padding: 12px 40px 12px 12px; /* space for clear button */
+        font-size: 16px;
+        border: 2px solid #0056a3;
+        border-radius: 8px;
+        box-sizing: border-box;
+      }
+
+      .clear-btn {
+        position: absolute;
+        right: 12px;
+        font-size: 18px;
+        color: #999;
+        cursor: pointer;
+        user-select: none;
+        display: none; /* hidden until typing */
+      }
+
+      .clear-btn:hover {
+        color: #0056a3;
+      }
+      
     }
   </style>
 </head>
 <body>
   <header>NSCIPs Equipment Picker</header>
   <div class="container">
-    <input type="text" id="search" class="search-box" placeholder="Search equipment number or name...">
-    <button id="clearBtn">Clear</button>
+    <div class="search-wrapper">
+      <input type="text" id="search" class="search-box" placeholder="Search equipment number or name...">
+      <span id="clearBtn" class="clear-btn">&times;</span>
+    </div>
     <table>
       <thead>
         <tr>
@@ -167,14 +200,30 @@
       renderTable(filtered);
     });
 
-    document.getElementById("clearBtn").addEventListener("click", () => {
-      searchBox.value = "";
-      renderTable(equipmentList); // show full list again
-      searchBox.focus(); // keep cursor in search box
+      const clearBtn = document.getElementById("clearBtn");
+
+  searchBox.addEventListener("input", function() {
+      const query = this.value.toLowerCase();
+      const filtered = equipmentList.filter(row =>
+        row[0].toLowerCase().includes(query) ||
+        (row[1] && row[1].toLowerCase().includes(query))
+      );
+      renderTable(filtered);
+
+      // show/hide clear button
+      clearBtn.style.display = this.value ? "block" : "none";
+    });
+
+  clearBtn.addEventListener("click", () => {
+  searchBox.value = "";
+  renderTable(equipmentList);
+  clearBtn.style.display = "none";
+  searchBox.focus();
     });
 
   </script>
 </body>
 </html>
+
 
 
