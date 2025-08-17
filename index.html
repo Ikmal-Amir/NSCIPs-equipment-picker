@@ -135,10 +135,12 @@
           tr.appendChild(tdName);
 
           tr.addEventListener("click", (e) => {
-            navigator.clipboard.writeText(row[0]).then(() => {
-              showCopied(e.pageX, e.pageY);
+            const cleanNumber = row[0].trim(); // remove leading/trailing spaces
+            navigator.clipboard.writeText(cleanNumber).then(() => {
+            showCopied(e.pageX, e.pageY);
             });
           });
+
 
           tableBody.appendChild(tr);
         }
@@ -166,3 +168,4 @@
   </script>
 </body>
 </html>
+
