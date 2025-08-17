@@ -102,16 +102,16 @@
       right: 10px;
       top: 50%;
       transform: translateY(-50%);
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: #0056a3; /* company blue */
       color: #fbbc05;      /* company yellow */
-      font-size: 16px;
+      font-size: 18px;     /* nice size for ✖ */
       font-weight: bold;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: center; /* ensures ✖ is centered */
       cursor: pointer;
       user-select: none;
       display: none; /* hidden until typing */
@@ -119,8 +119,8 @@
     }
     
     .clear-btn:hover {
-      background: #003d73; /* darker blue hover */
-      color: #fff;
+      background: #003d73; /* darker blue on hover */
+      color: #fff;         /* white ✖ on hover */
     }
   </style>
 </head>
@@ -129,7 +129,7 @@
   <div class="container">
     <div class="search-wrapper">
       <input type="text" id="search" class="search-box" placeholder="Search equipment number or name...">
-      <span id="clearBtn" class="clear-btn">&times;</span>
+      <span id="clearBtn" class="clear-btn">✖</span>
     </div>
     <table>
       <thead>
@@ -231,6 +231,7 @@
   </script>
 </body>
 </html>
+
 
 
 
