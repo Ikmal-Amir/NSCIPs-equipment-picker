@@ -85,15 +85,13 @@
       }
       .search-wrapper {
         position: relative;
-        display: flex;
-        align-items: center;
         width: 100%;
         margin-bottom: 20px;
       }
 
       .search-box {
         width: 100%;
-        padding: 12px 40px 12px 12px; /* space for clear button */
+        padding: 12px 40px 12px 12px; /* leave space for the X */
         font-size: 16px;
         border: 2px solid #0056a3;
         border-radius: 8px;
@@ -102,16 +100,26 @@
 
       .clear-btn {
         position: absolute;
-        right: 12px;
-        font-size: 18px;
-        color: #999;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #ccc;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 22px; /* center the "x" inside */
         cursor: pointer;
         user-select: none;
         display: none; /* hidden until typing */
+        transition: background 0.2s ease;
       }
-
+      
       .clear-btn:hover {
-        color: #0056a3;
+        background: #0056a3; /* company blue on hover */
       }
       
     }
@@ -224,6 +232,7 @@
   </script>
 </body>
 </html>
+
 
 
 
