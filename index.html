@@ -67,14 +67,15 @@
       position: absolute;
       background: #fbbc05;
       color: #000;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 13px;
       font-weight: bold;
       pointer-events: none;
       opacity: 0;
-      transform: translate(-50%, -150%);
+      transform: translate(-50%, -150%) scale(0.9);
       transition: opacity 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
     @media (max-width: 600px) {
       th, td {
@@ -124,6 +125,20 @@
     .clear-btn:hover {
       background: #003d73; /* darker blue on hover */
       color: #fff;         /* white ✖ on hover */
+    }
+    /* Animate search box on focus */
+    .search-box:focus {
+      outline: none;
+      box-shadow: 0 0 8px rgba(0, 86, 163, 0.4);
+      transform: scale(1.02);
+      transition: all 0.25s ease;
+    }
+    
+    /* Row click animation */
+    tr.clicked {
+      background-color: #fff3cd !important; /* soft yellow highlight */
+      transform: scale(1.01);
+      transition: all 0.2s ease;
     }
   </style>
 </head>
@@ -179,12 +194,15 @@
           tr.appendChild(tdName);
 
           tr.addEventListener("click", (e) => {
-            const cleanNumber = row[0].trim(); // remove leading/trailing spaces
-            navigator.clipboard.writeText(cleanNumber).then(() => {
+          const cleanNumber = row[0].trim(); // remove leading/trailing spaces
+          navigator.clipboard.writeText(cleanNumber).then(() => {
             showCopied(e.pageX, e.pageY);
-            });
+        
+            // Add "clicked" class for animation
+            tr.classList.add("clicked");
+            setTimeout(() => tr.classList.remove("clicked"), 400); // reset after animation
           });
-
+        });
 
           tableBody.appendChild(tr);
         }
@@ -195,9 +213,11 @@
       copiedPopup.style.left = x + "px";
       copiedPopup.style.top = y + "px";
       copiedPopup.style.opacity = "1";
-      copiedPopup.style.transform = "translate(-50%, -150%)";
+      copiedPopup.style.transform = "translate(-50%, -150%) scale(1)";
+    
       setTimeout(() => {
         copiedPopup.style.opacity = "0";
+        copiedPopup.style.transform = "translate(-50%, -150%) scale(0.9)";
       }, 1000);
     }
 
@@ -234,6 +254,7 @@
   </script>
 </body>
 </html>
+
 
 
 
