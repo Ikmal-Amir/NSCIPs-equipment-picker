@@ -167,6 +167,20 @@
     const searchBox = document.getElementById("search");
     const tableBody = document.getElementById("table-body");
     const copiedPopup = document.getElementById("copied-popup");
+    // --- Begin: postMessage helper ---
+    function notifyParentSelection(value) {
+      try {
+        // Send a structured message. The receiver will check event.origin === 'https://ikmal-amir.github.io'
+        window.parent?.postMessage(
+          { type: 'nscips-equipment-selected', value: String(value).trim() },
+          '*'
+        );
+      } catch (err) {
+        // No parent (opened directly) or cross-origin blocked — ignore gracefully
+      }
+    }
+    // --- End: postMessage helper ---
+
 
     // Load CSV using PapaParse
     Papa.parse("https://raw.githubusercontent.com/Ikmal-Amir/NSCIPs-equipment-picker/refs/heads/main/equipment.csv", {
@@ -200,7 +214,8 @@
         
             // Add "clicked" class for animation
             tr.classList.add("clicked");
-            setTimeout(() => tr.classList.remove("clicked"), 400); // reset after animation
+            setTimeout(() => tr.classList.remove("clicked"), 400); // reset after animation  
+            notifyParentSelection(cleanNumber); // Also notify the parent window (for Forms auto-fill via userscript/extension)
           });
         });
 
@@ -254,6 +269,7 @@
   </script>
 </body>
 </html>
+
 
 
 
