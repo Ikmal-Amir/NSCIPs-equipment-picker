@@ -167,6 +167,19 @@
     const searchBox = document.getElementById("search");
     const tableBody = document.getElementById("table-body");
     const copiedPopup = document.getElementById("copied-popup");
+    // --- Begin: postMessage helper ---
+    function notifyParentSelection(value) {
+      try {
+        // send selection to any parent (e.g., the forms page hosting the iframe)
+        window.parent?.postMessage(
+          { type: 'nscips-equipment-selected', value: String(value).trim() },
+          '*'
+        );
+      } catch (err) {
+        // safe no-op if opened standalone
+      }
+    }
+    // --- End: postMessage helper ---
 
     // Load CSV using PapaParse
     Papa.parse("https://raw.githubusercontent.com/Ikmal-Amir/NSCIPs-equipment-picker/refs/heads/main/equipment.csv", {
@@ -194,15 +207,19 @@
           tr.appendChild(tdName);
 
           tr.addEventListener("click", (e) => {
-          const cleanNumber = row[0].trim(); // remove leading/trailing spaces
-          navigator.clipboard.writeText(cleanNumber).then(() => {
-            showCopied(e.pageX, e.pageY);
-        
-            // Add "clicked" class for animation
-            tr.classList.add("clicked");
-            setTimeout(() => tr.classList.remove("clicked"), 400); // reset after animation  
+            const cleanNumber = row[0]?.trim?.() || '';
+            if (!cleanNumber) return;
+          
+            navigator.clipboard.writeText(cleanNumber).catch(()=>{/* non-blocking */}).then(() => {
+              showCopied(e.pageX, e.pageY);
+          
+              tr.classList.add("clicked");
+              setTimeout(() => tr.classList.remove("clicked"), 400);
+          
+              // NEW: tell the parent page (Microsoft Forms via userscript) what was selected
+              notifyParentSelection(cleanNumber);
+            });
           });
-        });
 
           tableBody.appendChild(tr);
         }
@@ -254,6 +271,7 @@
   </script>
 </body>
 </html>
+
 
 
 
